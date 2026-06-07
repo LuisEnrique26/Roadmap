@@ -1,0 +1,72 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(105, 27, 141);
+    height: 100vh;
+}
+
+h2 {
+    color: white;
+    font-size: 40px;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 15px;
+    background-color: rgb(178, 127, 210);
+    border-radius: 10px;
+    width: 500px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: rgb(120, 45, 190);
+    padding: 10px;
+    border-radius: 10px;
+    width: 200px;
+    height: 150px;
+}
+
+label {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+input {
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    width: 100px;
+    height: 40px;
+    outline: none;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.equal {
+    font-size: 80px;
+    font-weight: bold;
+    color: white;
+}
