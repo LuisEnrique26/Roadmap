@@ -1,11 +1,1 @@
-{
-    "yaml.schemas": {
-        "file:///home/luise/.vscode/extensions/continue.continue-1.2.16-linux-x64/config-yaml-schema.json": [
-            ".continue/**/*.yaml"
-        ],
-        "file:///home/luise/.vscode/extensions/continue.continue-1.2.22-linux-x64/config-yaml-schema.json": [
-            ".continue/**/*.yaml",
-            "file:///home/luise/.continue/config.yaml"
-        ]
-    }
-}
+{}
