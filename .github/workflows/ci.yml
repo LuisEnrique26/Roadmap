@@ -14,7 +14,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./w03/c03
+        working-directory: w03/c03
 
     steps:
       - name: Clone repository
@@ -25,6 +25,7 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
+          cache-dependency-path: "w03/c03/package-lock.json"
 
       - name: Install dependencies
         run: npm ci
