@@ -1,33 +1,114 @@
+import { prisma } from "../../../core/config/database.js";
+
 export interface Transaction {
     id: string;
     amount: number;
     currency: string;
     description: string;
+    inspector_name?: string;
+    userId?: string;
 }
 
 class TransactionRepository {
-    private readonly store: Transaction[] = [];
 
-    public add(transaction: Transaction): void {
-        this.store.push(transaction);
+    public async add(transaction: Transaction): Promise<void> {
+            await prisma.$transaction([
+                prisma.transaction.create({
+                    data: {
+                        id: transaction.id,
+                        amount: transaction.amount,
+                        currency: transaction.currency,
+                        description: transaction.description || "Without description",
+                        userId: transaction.userId ?? null
+                    }
+                }),
+
+                ...(transaction.userId ? [
+                    prisma.user.update({
+                        where: {
+                            id: transaction.userId
+                        },
+                        data: {
+                            balance: {
+                                increment: transaction.amount
+                            }
+                        }
+                    })
+                ] : [])
+            ]);
     }
 
-    public getById(id: string): Transaction | null {
-        const item = this.store.find((item) => item.id === id);
-        if (!item) return null;
-        return item;
+    public async getById(id: string): Promise<Transaction | null> {
+        const transaction = await prisma.transaction.findUnique({
+            where: {
+                id
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        return transaction ? {
+            id: transaction.id,
+            amount: Number(transaction.amount),
+            currency: transaction.currency,
+            description: transaction.description ?? "Without description",
+            inspector_name: transaction.user?.name ?? "Unknown"
+        } : null;
     }
 
-    public getTransactions(): Transaction[] {
-        return [...this.store];
+    public async getTransactions(): Promise<Transaction[]> {
+        const transactions = await prisma.transaction.findMany({
+            orderBy: {
+                createdAt: 'desc'
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+
+        return transactions.map((t: any) => ({
+            id: t.id,
+            amount: Number(t.amount),
+            currency: t.currency,
+            description: t.description,
+            inspector_name: t.user?.name
+        }));
     }
 
-    public getTransactionsLength(): number {
-        return this.store.length;
+    public async getTransactionsLength(): Promise<number> {
+        return await prisma.transaction.count();
     }
 
-    public getPaginated(page: number, pageSize: number): Transaction[] {
-        return this.store.slice((page - 1) * pageSize, page * pageSize);
+    public async getPaginated(page: number, pageSize: number): Promise<Transaction[]> {
+        const transactions = await prisma.transaction.findMany({
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            orderBy: {
+                createdAt: 'desc'
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        return transactions.map((t: any) => ({
+            id: t.id,
+            amount: Number(t.amount),
+            currency: t.currency,
+            description: t.description,
+            inspector_name: t.user?.name
+        }));
     }
 }
 

@@ -4,7 +4,7 @@ import type TransactionRepository from "../infrastructure/TransactionRepository.
 class TransactionService {
     constructor(private transactionRepository: TransactionRepository) {}
 
-    public createTransaction(transaction: Transaction): Transaction {
+    public async createTransaction(transaction: Transaction): Promise<Transaction> {
         if (transaction.amount <= 0) {
             throw new Error("Amount must be greater than 0");
         }
@@ -14,24 +14,24 @@ class TransactionService {
         if (transaction.description && transaction.description.length > 100) {
             throw new Error("Description must be at most 100 characters long");
         }
-        this.transactionRepository.add(transaction);
+        await this.transactionRepository.add(transaction);
         return transaction;
     }
 
-    public getTransactionById(id: string): Transaction | null {
-        return this.transactionRepository.getById(id);
+    public async getTransactionById(id: string): Promise<Transaction | null> {
+        return  await this.transactionRepository.getById(id);
     }
 
-    public getTransactions(): Transaction[] {
-        return this.transactionRepository.getTransactions();
+    public async getTransactions(): Promise<Transaction[]> {
+        return await this.transactionRepository.getTransactions();
     }
 
-    public getTransactionsLength(): number {
-        return this.transactionRepository.getTransactionsLength();
+    public async getTransactionsLength(): Promise<number> {
+        return await this.transactionRepository.getTransactionsLength();
     }
 
-    public getPaginated(page: number, pageSize: number): Transaction[] {
-        return this.transactionRepository.getPaginated(page, pageSize);
+    public async getPaginated(page: number, pageSize: number): Promise<Transaction[]> {
+        return await this.transactionRepository.getPaginated(page, pageSize);
     }
 }
 

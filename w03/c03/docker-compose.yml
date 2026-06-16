@@ -1,0 +1,39 @@
+services:
+  erp_postgres:
+    image: postgres:15-alpine
+    container_name: erp-postgres
+    #restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin-password
+      POSTGRES_DB: erp_database
+    ports:
+      - "5432:5432"
+    volumes: 
+      - pg_data:/var/lib/postgresql/data
+
+  erp_mongo:
+    image: mongo:latest
+    container_name: erp-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin_password
+    #restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  erp_api:
+    build: .
+    container_name: erp-api
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - erp_postgres
+      - erp_mongo
+
+volumes:
+  pg_data:
+  mongo_data:

@@ -5,6 +5,8 @@ import TransactionRepository from "./TransactionRepository.js";
 import TransactionService from "../application/TransactionService.js";
 import rateLimiter from "../../../core/middlewares/rateLimiter.js";
 import errorHandler from "../../../core/middlewares/errorHandler.js";
+import AuthController from "../../auth/AuthController.js";
+import ReportController from "../../reports/ReportController.js";
 
 const router = Router();
 
@@ -13,9 +15,15 @@ const rateLimiterMiddleware = rateLimiter;
 const transactionRepository = new TransactionRepository();
 const transactionService = new TransactionService(transactionRepository);
 const transactionController = new TransactionController(transactionService);
+const authController = new AuthController();
+const reportController = new ReportController();
+
+router.post("/auth/login", (req, res) => {
+    authController.login(req, res);
+});
 
 router.use((req, res, next) => {
-    authMiddleware;
+    authMiddleware(req, res, next);
 });
 
 router.use((req, res, next) => {
@@ -33,6 +41,10 @@ router.get("/transactions/paginated", (req, res) => {
 });
 router.post("/transactions", (req, res) => {
     transactionController.handleCreate(req, res);
+});
+
+router.post("/reports", (req, res) => {
+    reportController.handleCreate(req, res);
 });
 
 router.use(errorHandler);
