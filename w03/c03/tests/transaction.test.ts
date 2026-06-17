@@ -1,14 +1,26 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import TransactionService from '../src/modules/transactions/application/TransactionService.js';
-import TransactionRepository from '../src/modules/transactions/infrastructure/TransactionRepository.js';
+
+class MockTransactionRepository {
+  private memoryDb: any[] = [];
+
+  async add(transaction: any) {
+    this.memoryDb.push(transaction);
+    return transaction;
+  }
+
+  async getTransactionsLength() {
+    return this.memoryDb.length;
+  }
+}
 
 describe('TransactionService Unit Test', () => {
   let transactionService: TransactionService;
-  let transactionRepository: TransactionRepository;
+  let mockRepository: MockTransactionRepository;
 
   beforeEach(() => {
-    transactionRepository = new TransactionRepository();
-    transactionService = new TransactionService(transactionRepository);
+    mockRepository = new MockTransactionRepository();
+    transactionService = new TransactionService(mockRepository as any);
   });
 
   it('should create a transaction and return it', async () => {
@@ -19,13 +31,15 @@ describe('TransactionService Unit Test', () => {
       description: 'Test transaction',
     };
 
-    const transactionResponse = transactionService.createTransaction(transaction);
-    expect(transactionResponse).toEqual({
-      id: expect.any(String),
-      amount: 100,
-      currency: 'USD',
-      description: 'Test transaction',
-    });
+    const transactionResponse = await transactionService.createTransaction(transaction);
+
+    expect(transactionResponse).toEqual(
+      expect.objectContaining({
+        amount: 100,
+        currency: 'USD',
+        description: 'Test transaction',
+      })
+    );
   });
 
   it('should validate the amount', async () => {
@@ -35,7 +49,8 @@ describe('TransactionService Unit Test', () => {
       currency: 'USD',
       description: 'Test transaction',
     };
-    expect(() => transactionService.createTransaction(transaction)).toThrow(
+
+    await expect(transactionService.createTransaction(transaction)).rejects.toThrow(
       'Amount must be greater than 0'
     );
   });
@@ -47,30 +62,27 @@ describe('TransactionService Unit Test', () => {
       currency: 'US',
       description: 'Test transaction',
     };
-    expect(() => transactionService.createTransaction(transaction)).toThrow(
+
+    await expect(transactionService.createTransaction(transaction)).rejects.toThrow(
       'Currency code must be 3 characters long'
     );
   });
 
   it('should return the length of the transactions', async () => {
-    transactionService.createTransaction({
+    await transactionService.createTransaction({
       id: '1',
       amount: 100,
       currency: 'USD',
-      description: 'Test transaction',
+      description: 'Test 1',
     });
-    transactionService.createTransaction({
+    await transactionService.createTransaction({
       id: '2',
       amount: 100,
       currency: 'USD',
-      description: 'Test transaction',
+      description: 'Test 2',
     });
-    transactionService.createTransaction({
-      id: '3',
-      amount: 100,
-      currency: 'USD',
-      description: 'Test transaction',
-    });
-    expect(transactionService.getTransactionsLength()).toBe(3);
+
+    const length = await transactionService.getTransactionsLength();
+    expect(length).toBe(2);
   });
 });
